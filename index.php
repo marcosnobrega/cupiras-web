@@ -28,12 +28,43 @@ $config = array(
 
 $app = new \Slim\Slim($config);
 
-$app->get("/", function() use ($app) {
-	echo $app->render('login.phtml');
+$app->hook("slim.before.dispatch", function() use ($app) {
+	if ($app->request->getPath() != "/" && $app->request->getPath() != "/login") {
+		if (!isset($_SESSION["proprietario"]) || empty($_SESSION["proprietario"])) {
+			$app->redirectTo("home");
+		}
+	}
 });
 
+$app->get("/", function() use ($app) {
+	echo $app->render('login.phtml');
+})->name("home");
+
 $app->get("/principal", function() use ($app) {
-        echo $app->render('index.phtml');
+	echo $app->render('index.phtml');
+})->name("principal");
+
+$app->post("/login", function() use ($app) {
+	$email = $app->request->post("email");
+	$senha = $app->request->post("senha");
+	if (empty($email) || empty($senha)) {
+		$app->flash('flashMessage', "E-mail/senha inválidos");
+	}
+	$proprietarios = Proprietarios::all();
+	foreach ($proprietarios as $proprietario) {
+		if ($proprietario->email == $email && $proprietario->senha == $senha) {
+			$_SESSION["proprietario"] = $proprietario;
+			$app->redirectTo("principal");
+		} else {
+			$app->flash('flashMessage', "E-mail/senha inválidos");
+		}
+	}
+	$app->redirectTo("home");
+});
+
+$app->get("/logout", function() use ($app) {
+	session_destroy();
+	$app->redirectTo("home");
 });
 
 /* Routes for Proprietarios */
