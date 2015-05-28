@@ -1,0 +1,9 @@
+{
+    "require": {
+        "slim/slim" : "2.6.2",
+        "illuminate/database": "5.*"
+    },
+    "autoload": {
+    	"psr-4": {"Cupiras\\": "app/Cupiras"}
+    }
+}
