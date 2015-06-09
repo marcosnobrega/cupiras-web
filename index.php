@@ -29,7 +29,7 @@ $config = array(
 $app = new \Slim\Slim($config);
 
 $app->hook("slim.before.dispatch", function() use ($app) {
-	if ($app->request->getPath() != "/" && $app->request->getPath() != "/login") {
+	if ($app->request->getPath() != $_ENV["CUPIRAS_BASE"]."/" && $app->request->getPath() != $_ENV["CUPIRAS_BASE"]."/login") {
 		if (!isset($_SESSION["proprietario"]) || empty($_SESSION["proprietario"])) {
 			$app->redirectTo("home");
 		}
@@ -88,6 +88,25 @@ $app->get("/proprietarios/deletar/:codigoProprietario", function($codigoPropriet
 	$app->redirectTo("listaproprietarios");
 });
 
+$app->get("/proprietarios/:codigoProprietario", function($codigoProprietario) use ($app) {
+	$toEdit = Proprietarios::find($codigoProprietario);
+	echo $app->render('cadastrarproprietario.phtml', array("proprietario"=>$toEdit));
+});
+
+$app->post("/proprietarios/:codigoProprietario", function($codigoProprietario) use ($app) {
+	$toEdit = Proprietarios::find($codigoProprietario);
+	$toEdit->nome = $app->request->post("nome");
+	$toEdit->rg = $app->request->post("rg");
+	$toEdit->cpfcnpj = $app->request->post("cpfcnpj");
+	$toEdit->endereco = $app->request->post("endereco");
+	$toEdit->contato = $app->request->post("contato");
+	$toEdit->email = $app->request->post("email");
+	$toEdit->senha = $app->request->post("senha");
+	$toEdit->timestamps = false;
+	$toEdit->update();
+	$app->redirectTo("listaproprietarios");
+});
+
 $app->post("/proprietarios/novo", function() use ($app) {
 	$newModel = new Proprietarios();
 	$newModel->nome = $app->request->post("nome");
@@ -123,6 +142,23 @@ $app->get("/funcionarios", function() use ($app) {
 $app->get("/funcionarios/deletar/:codigoFuncionario", function($codigoFuncionario) use ($app) {
 	$toDelete = Funcionarios::find($codigoFuncionario);
 	$toDelete->delete();
+	$app->redirectTo("listafuncionarios");
+});
+
+$app->get("/funcionarios/:codigoFuncionario", function($codigoFuncionario) use ($app) {
+	$toEdit = Funcionarios::find($codigoFuncionario);
+	echo $app->render("cadastrarfuncionario.phtml", array("funcionario"=>$toEdit));
+});
+
+$app->post("/funcionarios/:codigoFuncionario", function($codigoFuncionario) use ($app) {
+	$funcionario = Funcionarios::find($codigoFuncionario);
+	$funcionario->nome = $app->request->post("nome");
+	$funcionario->rg = $app->request->post("rg");
+	$funcionario->cpf = $app->request->post("cpf");
+	$funcionario->endereco = $app->request->post("endereco");
+	$funcionario->contato = $app->request->post("contato");
+	$funcionario->timestamps = false;
+	$funcionario->update();
 	$app->redirectTo("listafuncionarios");
 });
 
@@ -163,6 +199,25 @@ $app->get("/bovinos", function() use ($app) {
 $app->get("/bovinos/deletar/:codigoBovino", function($codigoBovino) use ($app) {
 	$toDelete = Bovinos::find($codigoBovino);
 	$toDelete->delete();
+	$app->redirectTo("listabovinos");
+});
+
+$app->get("/bovinos/:codigoBovino", function($codigoBovino) use ($app) {
+	$toEdit = Bovinos::find($codigoBovino);
+	echo $app->render("cadastrarbovino.phtml", array("bovino"=>$toEdit));
+});
+	
+$app->post("/bovinos/:codigoBovino", function($codigoBovino) use ($app) {
+	$bovino = Bovinos::find($codigoBovino);
+	$bovino->brinco = $app->request->post("brinco");
+	$bovino->datanascimento = $app->request->post("datanascimento");
+	$bovino->datavacina = $app->request->post("datavacina");
+	$bovino->nome = $app->request->post("nome");
+	$bovino->mae = $app->request->post("mae");
+	$bovino->pai = $app->request->post("pai");
+	$bovino->raca = $app->request->post("raca");
+	$bovino->timestamps = false;
+	$bovino->update();
 	$app->redirectTo("listabovinos");
 });
 	
